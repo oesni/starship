@@ -52,9 +52,29 @@ prompt_starship_preexec() {
     __starship_get_time && STARSHIP_START_TIME=$STARSHIP_CAPTURED_TIME
 }
 
+# execute once at the very first time
+prompt_starship_preexec_to_precmd() {
+    echo "prompt_starship_preexec_to_precmd called 5"
+    local PRECMD_LIST=( chruby_auto )
+
+    for func in "${PRECMD_LIST[@]}"; do
+        echo $func
+        if [[ $preexec_functions =~ .*"$func".* ]]; then
+            preexec_functions=${preexec_functions//$func/}
+            # precmd_functions+=($func)
+            add-zsh-hook precmd $func
+        fi
+    done
+
+    # remove prompt_starship_preexec_to_precmd
+    precmd_functions=${precmd_functions//prompt_starship_preexec_to_precmd/}
+    unfunction prompt_starship_preexec_to_precmd
+}
+
 # Add hook functions
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd prompt_starship_precmd
+add-zsh-hook precmd prompt_starship_preexec_to_precmd
 add-zsh-hook preexec prompt_starship_preexec
 
 # Set up a function to redraw the prompt if the user switches vi modes
