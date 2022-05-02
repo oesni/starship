@@ -54,15 +54,14 @@ prompt_starship_preexec() {
 
 # execute once at the very first time
 prompt_starship_preexec_to_precmd() {
-    echo "prompt_starship_preexec_to_precmd called 5"
     local PRECMD_LIST=( chruby_auto )
 
     for func in "${PRECMD_LIST[@]}"; do
-        echo $func
         if [[ $preexec_functions =~ .*"$func".* ]]; then
-            preexec_functions=${preexec_functions//$func/}
+            # preexec_functions=${preexec_functions//$func/}
+            add-zsh-hook -d preexec $func
             # precmd_functions+=($func)
-            add-zsh-hook precmd $func
+            add-zsh-hook chpwd $func
         fi
     done
 
